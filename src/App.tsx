@@ -1,9 +1,7 @@
-import { Button } from "@/components/ui/button"
+import AppRoutes from './routes'
 
 function App() {
-  return (
-    <Button>Hello World</Button>
-  )
+  return <AppRoutes />
 }
 
 export default App

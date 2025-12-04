@@ -12,11 +12,11 @@ chmod-entrypoint:
 
 build:
 	@echo "Build images"
-	$(DC) build
+	$(DC) build --no-cache
 
 up:
 	@echo "Start (foreground)"
-	$(DC) up --build
+	$(DC) up --build --remove-orphans
 
 up-detach:
 	@echo "Start (detached)"
