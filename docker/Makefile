@@ -24,10 +24,6 @@ up-detach:
 
 down:
 	@echo "Stop and remove containers"
-	$(DC) down
-
-down-volumes:
-	@echo "Stop and remove containers and volumes"
 	$(DC) down -v
 
 logs:

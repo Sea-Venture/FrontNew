@@ -16,6 +16,7 @@ RUN apk add --no-cache --virtual .build-deps python3 g++ make git \
 
 
 COPY docker/entrypoints/entrypoint.sh /usr/local/bin/entrypoint.sh
+
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 COPY . .

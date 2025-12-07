@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 
-export function LoginForm({
+export function RegisterForm({
   className,
   ...props
 }: React.ComponentProps<"form">) {
@@ -17,30 +17,30 @@ export function LoginForm({
     <form className={cn("flex flex-col gap-6", className)} {...props}>
       <FieldGroup>
         <Field>
+          <FieldLabel htmlFor="name">Full Name</FieldLabel>
+          <Input id="name" type="text" placeholder="John Doe" required />
+        </Field>
+        <Field>
           <FieldLabel htmlFor="email">Email</FieldLabel>
           <Input id="email" type="email" placeholder="m@example.com" required />
         </Field>
         <Field>
-          <div className="flex items-center">
-            <FieldLabel htmlFor="password">Password</FieldLabel>
-            <a
-              href="#"
-              className="ml-auto text-sm underline-offset-4 hover:underline"
-            >
-              Forgot your password?
-            </a>
-          </div>
+          <FieldLabel htmlFor="password">Password</FieldLabel>
           <Input id="password" type="password" required />
         </Field>
         <Field>
-          <Button type="submit" color="forest">Login</Button>
+          <FieldLabel htmlFor="confirmPassword">Confirm Password</FieldLabel>
+          <Input id="confirmPassword" type="password" required />
+        </Field>
+        <Field>
+          <Button type="submit" color="sunset">Create Account</Button>
         </Field>
         <FieldSeparator>Or continue with</FieldSeparator>
         <Field>
           <FieldDescription className="text-center">
-            Don&apos;t have an account?{" "}
-            <a href="/register" className="underline underline-offset-4">
-              Sign up
+            Already have an account?{" "}
+            <a href="/login" className="underline underline-offset-4">
+              Sign in
             </a>
           </FieldDescription>
         </Field>
