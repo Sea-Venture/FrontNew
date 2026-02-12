@@ -5,9 +5,9 @@ import {
   register as registerService,
   logout as logoutService,
   refreshToken as refreshTokenService,
-  type LoginCredentials as loginCredentials,
-  type RegisterData as registerData,
-  type AuthResponse as authResponse,
+  type LoginCredentials,
+  type RegisterData,
+  type AuthResponse,
   AUTH_API_ENDPOINTS
 } from '../services/authService';
 
@@ -30,8 +30,8 @@ interface AuthState {
 }
 
 interface AuthActions {
-  login: (credentials: loginCredentials) => Promise<void>;
-  register: (userData: registerData) => Promise<void>;
+  login: (credentials: LoginCredentials) => Promise<void>;
+  register: (userData: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
   refreshAccessToken: () => Promise<void>;
   clearError: () => void;
@@ -51,11 +51,11 @@ export const useAuthStore = create<AuthStore>()(
       isLoading: false,
       error: null,
 
-      login: async (credentials: loginCredentials) => {
+      login: async (credentials: LoginCredentials) => {
         set({ isLoading: true, error: null });
 
         try {
-          const response: authResponse = await loginService(credentials);
+          const response: AuthResponse = await loginService(credentials);
 
           set({
             user: response.user,
@@ -74,11 +74,11 @@ export const useAuthStore = create<AuthStore>()(
         }
       },
 
-      register: async (userData: registerData) => {
+      register: async (userData: RegisterData) => {
         set({ isLoading: true, error: null });
 
         try {
-          const response: authResponse = await registerService(userData);
+          const response: AuthResponse = await registerService(userData);
 
           set({
             user: response.user,

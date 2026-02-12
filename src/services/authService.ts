@@ -23,6 +23,11 @@ export interface RegisterData {
   }>;
 }
 
+export interface LoginResponse {
+  accessToken: string;
+  refreshToken: string;
+}
+
 export interface AuthResponse {
   user: {
     id: string;
@@ -51,6 +56,24 @@ const handleResponse = async (response: Response) => {
 };
 
 
+const decodeJWT = (token: string) => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.error('Failed to decode JWT:', error);
+    return null;
+  }
+};
+
+
 const getAuthHeaders = (token?: string) => {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -71,7 +94,25 @@ export const login = async (credentials: LoginCredentials): Promise<AuthResponse
     body: JSON.stringify(credentials),
   });
 
-  return handleResponse(response);
+  const loginData: LoginResponse = await handleResponse(response);
+  
+  const tokenPayload = decodeJWT(loginData.accessToken);
+  
+  if (!tokenPayload || !tokenPayload.userId) {
+    throw new Error('Invalid token received');
+  }
+  
+  const user = {
+    id: tokenPayload.userId,
+    email: credentials.email,
+    name: tokenPayload.username || tokenPayload.name,
+  };
+  
+  return {
+    user,
+    accessToken: loginData.accessToken,
+    refreshToken: loginData.refreshToken,
+  };
 };
 
 

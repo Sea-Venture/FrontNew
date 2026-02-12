@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Search, Home, BookOpen, Star, Filter } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Search, Home, BookOpen, Star, Filter, User, Settings, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,12 +9,28 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { useAuthStore } from "@/store/authStore";
 import logo from "../../assets/logos/logo.png";
 import HomeComponent from "./home";
+import BecomeAdminForm from "./changeRole/becomeAdmin";
 
 export default function VoyagerPage() {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [showAdminForm, setShowAdminForm] = useState(false);
+  const navigate = useNavigate();
+  const { logout } = useAuthStore();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      navigate("/login");
+    }
+  };
 
   const videoCategories = [
     "Ghibli Classics",
@@ -163,12 +180,39 @@ export default function VoyagerPage() {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <Avatar className="ring-2 ring-blue-200 hover:ring-blue-400 transition-all duration-300 h-7 w-7 sm:h-8 sm:w-8">
-              <AvatarImage src="/api/placeholder/32/32" alt="User" />
-              <AvatarFallback className="bg-linear-to-br from-blue-400 to-cyan-500 text-white text-xs sm:text-sm">
-                V
-              </AvatarFallback>
-            </Avatar>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Avatar className="ring-2 ring-blue-200 hover:ring-blue-400 transition-all duration-300 h-7 w-7 sm:h-8 sm:w-8 cursor-pointer">
+                  <AvatarImage src="/api/placeholder/32/32" alt="User" />
+                  <AvatarFallback className="bg-linear-to-br from-blue-400 to-cyan-500 text-white text-xs sm:text-sm">
+                    V
+                  </AvatarFallback>
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-white/90 backdrop-blur-lg border-blue-200 w-48">
+                <DropdownMenuItem className="hover:bg-blue-50 cursor-pointer">
+                  <User className="mr-2 h-4 w-4" />
+                  Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem className="hover:bg-blue-50 cursor-pointer">
+                  <Settings className="mr-2 h-4 w-4" />
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  className="hover:bg-blue-50 cursor-pointer text-blue-700 font-medium"
+                  onClick={() => setShowAdminForm(true)}
+                >
+                  <Star className="mr-2 h-4 w-4" />
+                  Become Admin
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="hover:bg-blue-50 cursor-pointer text-red-600" onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
@@ -187,7 +231,11 @@ export default function VoyagerPage() {
       </header>
 
       <main className="w-full">
-        <HomeComponent />
+        {showAdminForm ? (
+          <BecomeAdminForm onClose={() => setShowAdminForm(false)} />
+        ) : (
+          <HomeComponent />
+        )}
       </main>
     </div>
   );
