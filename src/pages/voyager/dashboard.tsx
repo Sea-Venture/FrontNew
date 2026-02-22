@@ -14,11 +14,13 @@ import {
 import { useAuthStore } from "@/store/authStore";
 import logo from "../../assets/logos/logo.png";
 import HomeComponent from "./home";
-import BecomeAdminForm from "./changeRole/becomeAdmin";
+import FeedHome from "./feed/feed-home";
+import BecomeAdminForm from "./changeRole/becomeGuide";
 
 export default function VoyagerPage() {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [showAdminForm, setShowAdminForm] = useState(false);
+  const [showFeed, setShowFeed] = useState(false);
   const navigate = useNavigate();
   const { logout } = useAuthStore();
 
@@ -65,6 +67,11 @@ export default function VoyagerPage() {
                 variant="ghost"
                 size="icon"
                 className="hover:bg-blue-100/50 transition-all duration-300"
+                onClick={() => {
+                  setShowAdminForm(false);
+                  setMobileSearchOpen(false);
+                  setShowFeed(true);
+                }}
               >
                 <Home className="h-5 w-5 text-blue-700" />
               </Button>
@@ -72,6 +79,7 @@ export default function VoyagerPage() {
                 variant="ghost"
                 size="icon"
                 className="hover:bg-blue-100/50 transition-all duration-300"
+                onClick={() => setShowFeed(false)}
               >
                 <BookOpen className="h-5 w-5 text-blue-700" />
               </Button>
@@ -79,6 +87,7 @@ export default function VoyagerPage() {
                 variant="ghost"
                 size="icon"
                 className="hover:bg-blue-100/50 transition-all duration-300"
+                onClick={() => setShowFeed(false)}
               >
                 <Star className="h-5 w-5 text-blue-700" />
               </Button>
@@ -100,8 +109,9 @@ export default function VoyagerPage() {
               variant="ghost"
               size="icon"
               className="hover:bg-blue-100/50 transition-all duration-300"
+              onClick={() => { setShowAdminForm(false); setShowFeed(true); }}
             >
-              <Home className="h-4 w-4 text-blue-700" />
+                <Home className="h-4 w-4 text-blue-700" />
             </Button>
             <Button
               variant="ghost"
@@ -132,6 +142,7 @@ export default function VoyagerPage() {
               variant="ghost"
               size="icon"
               className="hover:bg-blue-100/50 transition-all duration-300 h-8 w-8"
+              onClick={() => { setShowAdminForm(false); setShowFeed(true); }}
             >
               <Home className="h-3 w-3 text-blue-700" />
             </Button>
@@ -204,7 +215,7 @@ export default function VoyagerPage() {
                   onClick={() => setShowAdminForm(true)}
                 >
                   <Star className="mr-2 h-4 w-4" />
-                  Become Admin
+                  Become Guide
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="hover:bg-blue-50 cursor-pointer text-red-600" onClick={handleLogout}>
@@ -233,6 +244,8 @@ export default function VoyagerPage() {
       <main className="w-full">
         {showAdminForm ? (
           <BecomeAdminForm onClose={() => setShowAdminForm(false)} />
+        ) : showFeed ? (
+          <FeedHome />
         ) : (
           <HomeComponent />
         )}

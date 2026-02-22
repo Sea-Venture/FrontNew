@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Search, Home, BookOpen, Star, Filter } from "lucide-react";
+import { useNavigate, Outlet } from "react-router-dom";
+import { Search, Home, BookOpen, Star, Filter, User, Settings, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,14 +9,27 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { GuideSidebar } from "./sidebar";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
+import { useAuthStore } from "@/store/authStore";
 import logo from "../../assets/logos/logo.png";
-import HomeComponent from "./home";
 
 export default function GuidePage() {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const navigate = useNavigate();
+  const { logout } = useAuthStore();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      navigate("/login");
+    }
+  };
 
   const guideCategories = [
     "Beginner Guides",
@@ -171,12 +185,31 @@ export default function GuidePage() {
                   </DropdownMenuContent>
                 </DropdownMenu>
 
-                <Avatar className="ring-2 ring-green-200 hover:ring-green-400 transition-all duration-300 h-7 w-7 sm:h-8 sm:w-8">
-                  <AvatarImage src="/api/placeholder/32/32" alt="User" />
-                  <AvatarFallback className="bg-linear-to-br from-green-400 to-emerald-500 text-white text-xs sm:text-sm">
-                    G
-                  </AvatarFallback>
-                </Avatar>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Avatar className="ring-2 ring-green-200 hover:ring-green-400 transition-all duration-300 h-7 w-7 sm:h-8 sm:w-8 cursor-pointer">
+                      <AvatarImage src="/api/placeholder/32/32" alt="User" />
+                      <AvatarFallback className="bg-linear-to-br from-green-400 to-emerald-500 text-white text-xs sm:text-sm">
+                        G
+                      </AvatarFallback>
+                    </Avatar>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="bg-white/90 backdrop-blur-lg border-green-200 w-48">
+                    <DropdownMenuItem className="hover:bg-green-50 cursor-pointer">
+                      <User className="mr-2 h-4 w-4" />
+                      Profile
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="hover:bg-green-50 cursor-pointer">
+                      <Settings className="mr-2 h-4 w-4" />
+                      Settings
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem className="hover:bg-green-50 cursor-pointer text-red-600" onClick={handleLogout}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
 
@@ -195,7 +228,7 @@ export default function GuidePage() {
           </header>
 
           <main className="w-full">
-            <HomeComponent />
+            <Outlet />
           </main>
         </div>
       </SidebarInset>

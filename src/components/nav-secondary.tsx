@@ -1,5 +1,6 @@
 import React from "react"
 import { type LucideIcon } from "lucide-react"
+import { Link, useLocation } from "react-router-dom"
 
 import {
   SidebarGroup,
@@ -21,6 +22,8 @@ export function NavSecondary({
     badge?: React.ReactNode
   }[]
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
+  const location = useLocation()
+
   return (
     <SidebarGroup {...props}>
       <SidebarGroupContent>
@@ -28,10 +31,10 @@ export function NavSecondary({
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild>
-                <a href={item.url}>
+                <Link to={item.url}>
                   <item.icon />
                   <span>{item.title}</span>
-                </a>
+                </Link>
               </SidebarMenuButton>
               {item.badge && <SidebarMenuBadge>{item.badge}</SidebarMenuBadge>}
             </SidebarMenuItem>

@@ -55,7 +55,14 @@ export function LoginForm({
         password: formData.password,
       });
 
-      navigate("/voyager");
+      const user = useAuthStore.getState().user;
+      if (user?.accesses?.some(access => access.resource === 'grant_guide')) {
+        navigate('/guide');
+      } else if (user?.accesses?.some(access => access.resource === 'grant_admin')) {
+        navigate('/admin');
+      } else {
+        navigate('/voyager');
+      }
     } catch (error) {
       console.error("Login failed:", error);
     }

@@ -18,7 +18,6 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 
-// This is sample data for guide.
 const data = {
   teams: [
     {
@@ -32,11 +31,10 @@ const data = {
       title: "Dashboard",
       url: "/guide",
       icon: Compass,
-      isActive: true,
     },
     {
-      title: "Tutorials",
-      url: "/guide/tutorials",
+      title: "Posts",
+      url: "/guide/posts",
       icon: BookOpen,
     },
     {

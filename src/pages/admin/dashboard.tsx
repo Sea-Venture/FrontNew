@@ -1,6 +1,7 @@
 
 import { AdminSidebar } from "./sidebar";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
+import { Outlet } from "react-router-dom";
 
 export default function AdminDashboard() {
 
@@ -13,8 +14,9 @@ export default function AdminDashboard() {
           <div className="h-4 w-px bg-sidebar-border" />
           <h1 className="text-lg font-semibold">Admin Dashboard</h1>
         </header>
-
-           
+        <main className="flex-1 p-4">
+          <Outlet />
+        </main>
       </SidebarInset>
     </SidebarProvider>
   );

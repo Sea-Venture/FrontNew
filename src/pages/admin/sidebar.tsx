@@ -3,9 +3,10 @@ import {
   Command,
   Home,
   Inbox,
-  Search,
+  LocateIcon,
   Settings2,
   Sparkles,
+  Compass,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -18,7 +19,6 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 
-// This is sample data for admin.
 const data = {
   teams: [
     {
@@ -35,9 +35,14 @@ const data = {
       isActive: true,
     },
     {
-      title: "Users",
-      url: "/admin/users",
-      icon: Search,
+      title: "Locations",
+      url: "/admin/locations",
+      icon: LocateIcon,
+    },
+    {
+      title: "Guide Requests",
+      url: "/admin/guide-requests",
+      icon: Compass,
     },
     {
       title: "Analytics",

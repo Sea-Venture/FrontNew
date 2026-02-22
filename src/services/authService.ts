@@ -4,8 +4,8 @@ export const AUTH_API_ENDPOINTS = {
   LOGIN: `${API_VERSION.v1}/auth/login`,
   REGISTER: `${API_VERSION.v1}/auth/register`,
   LOGOUT: `${API_VERSION.v1}/auth/logout`,
-  REFRESH_TOKEN: `${API_VERSION.v1}/auth/refresh-token`,
-  ME: `${API_VERSION.v1}/auth/me`
+  ME: `${API_VERSION.v1}/auth/me`,
+  BECOME_GUIDE: (userId: string | number) => `${API_VERSION.v1}/users/${userId}/become-guide`,
 } as const;
 
 export interface LoginCredentials {
@@ -23,29 +23,38 @@ export interface RegisterData {
   }>;
 }
 
-export interface LoginResponse {
-  accessToken: string;
-  refreshToken: string;
-}
-
 export interface AuthResponse {
   user: {
-    id: string;
+    id: string | number;
+    username?: string;
     email: string;
     name?: string;
     accesses?: Array<{
       resource: string;
       actions: boolean;
     }>;
+    createdAt?: string;
+    updatedAt?: string;
   };
   accessToken: string;
-  refreshToken: string;
 }
 
-export interface RefreshTokenResponse {
-  accessToken: string;
+export interface BecomeGuideData {
+  NIC: string;
+  phone: string;
+  registrationNumber: string;
+  licenceDocumentUrl: string;
 }
 
+export interface BecomeGuideResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    id: string | number;
+    role: string;
+    status: string;
+  };
+}
 
 const handleResponse = async (response: Response) => {
   if (!response.ok) {
@@ -54,25 +63,6 @@ const handleResponse = async (response: Response) => {
   }
   return response.json();
 };
-
-
-const decodeJWT = (token: string) => {
-  try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split('')
-        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join('')
-    );
-    return JSON.parse(jsonPayload);
-  } catch (error) {
-    console.error('Failed to decode JWT:', error);
-    return null;
-  }
-};
-
 
 const getAuthHeaders = (token?: string) => {
   const headers: Record<string, string> = {
@@ -86,35 +76,16 @@ const getAuthHeaders = (token?: string) => {
   return headers;
 };
 
-
 export const login = async (credentials: LoginCredentials): Promise<AuthResponse> => {
   const response = await fetch(AUTH_API_ENDPOINTS.LOGIN, {
     method: 'POST',
     headers: getAuthHeaders(),
     body: JSON.stringify(credentials),
+    credentials: 'include',
   });
 
-  const loginData: LoginResponse = await handleResponse(response);
-  
-  const tokenPayload = decodeJWT(loginData.accessToken);
-  
-  if (!tokenPayload || !tokenPayload.userId) {
-    throw new Error('Invalid token received');
-  }
-  
-  const user = {
-    id: tokenPayload.userId,
-    email: credentials.email,
-    name: tokenPayload.username || tokenPayload.name,
-  };
-  
-  return {
-    user,
-    accessToken: loginData.accessToken,
-    refreshToken: loginData.refreshToken,
-  };
+  return handleResponse(response);
 };
-
 
 export const register = async (userData: RegisterData): Promise<AuthResponse> => {
   const registerPayload = {
@@ -131,16 +102,17 @@ export const register = async (userData: RegisterData): Promise<AuthResponse> =>
     method: 'POST',
     headers: getAuthHeaders(),
     body: JSON.stringify(registerPayload),
+    credentials: 'include',
   });
 
   return handleResponse(response);
 };
 
-
 export const logout = async (token?: string): Promise<void> => {
   const response = await fetch(AUTH_API_ENDPOINTS.LOGOUT, {
     method: 'POST',
     headers: getAuthHeaders(token),
+    credentials: 'include',
   });
 
   if (!response.ok) {
@@ -148,23 +120,29 @@ export const logout = async (token?: string): Promise<void> => {
   }
 };
 
-export const refreshToken = async (refreshToken: string): Promise<RefreshTokenResponse> => {
-  const response = await fetch(AUTH_API_ENDPOINTS.REFRESH_TOKEN, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    body: JSON.stringify({ refreshToken }),
-  });
-
-  return handleResponse(response);
-};
+// Refresh token flow removed — no client-side refresh helper provided.
 
 export const getCurrentUser = async (token: string) => {
   const response = await fetch(AUTH_API_ENDPOINTS.ME, {
     method: 'GET',
     headers: getAuthHeaders(token),
+    credentials: 'include',
   });
 
   return handleResponse(response);
 };
 
+export const becomeGuide = async (
+  userId: string | number, 
+  data: BecomeGuideData
+): Promise<BecomeGuideResponse> => {
+  const response = await fetch(AUTH_API_ENDPOINTS.BECOME_GUIDE(userId), {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(data),
+    credentials: 'include',
+  });
+
+  return handleResponse(response);
+};
 

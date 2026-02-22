@@ -4,7 +4,6 @@ import {
   login as loginService,
   register as registerService,
   logout as logoutService,
-  refreshToken as refreshTokenService,
   type LoginCredentials,
   type RegisterData,
   type AuthResponse,
@@ -18,12 +17,15 @@ export interface User {
   email: string;
   name?: string;
   role?: string;
+  accesses?: Array<{
+    resource: string;
+    actions: boolean;
+  }>;
 }
 
 interface AuthState {
   user: User | null;
   accessToken: string | null;
-  refreshToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
@@ -33,20 +35,17 @@ interface AuthActions {
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (userData: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
-  refreshAccessToken: () => Promise<void>;
   clearError: () => void;
   setUser: (user: User | null) => void;
-  setTokens: (accessToken: string | null, refreshToken: string | null) => void;
 }
 
 type AuthStore = AuthState & AuthActions;
 
 export const useAuthStore = create<AuthStore>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       user: null,
       accessToken: null,
-      refreshToken: null,
       isAuthenticated: false,
       isLoading: false,
       error: null,
@@ -58,9 +57,13 @@ export const useAuthStore = create<AuthStore>()(
           const response: AuthResponse = await loginService(credentials);
 
           set({
-            user: response.user,
+            user: {
+              id: response.user.id.toString(),
+              email: response.user.email,
+              name: response.user.username || response.user.name,
+              accesses: response.user.accesses,
+            },
             accessToken: response.accessToken,
-            refreshToken: response.refreshToken,
             isAuthenticated: true,
             isLoading: false,
             error: null,
@@ -81,9 +84,13 @@ export const useAuthStore = create<AuthStore>()(
           const response: AuthResponse = await registerService(userData);
 
           set({
-            user: response.user,
+            user: {
+              id: response.user.id.toString(),
+              email: response.user.email,
+              name: response.user.username || response.user.name,
+              accesses: response.user.accesses,
+            },
             accessToken: response.accessToken,
-            refreshToken: response.refreshToken,
             isAuthenticated: true,
             isLoading: false,
             error: null,
@@ -98,10 +105,8 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       logout: async () => {
-        const { accessToken } = get();
-
         try {
-          await logoutService(accessToken || undefined);
+          await logoutService();
         } catch (error) {
           console.warn('Logout service failed:', error);
         }
@@ -109,55 +114,22 @@ export const useAuthStore = create<AuthStore>()(
         set({
           user: null,
           accessToken: null,
-          refreshToken: null,
           isAuthenticated: false,
           error: null,
         });
       },
 
-      refreshAccessToken: async () => {
-        const { refreshToken } = get();
-
-        if (!refreshToken) {
-          throw new Error('No refresh token available');
-        }
-
-        try {
-          const response = await refreshTokenService(refreshToken);
-
-          set({
-            accessToken: response.accessToken,
-            error: null,
-          });
-        } catch (error) {
-
-          set({
-            user: null,
-            accessToken: null,
-            refreshToken: null,
-            isAuthenticated: false,
-            error: error instanceof Error ? error.message : 'Token refresh failed',
-          });
-          throw error;
-        }
-      },
+      // Note: refresh token flow removed; no refreshAccessToken implementation.
 
       clearError: () => set({ error: null }),
 
       setUser: (user: User | null) => set({ user }),
-
-      setTokens: (accessToken: string | null, refreshToken: string | null) => set({
-        accessToken,
-        refreshToken,
-        isAuthenticated: !!accessToken,
-      }),
     }),
     {
       name: 'auth-storage',
       partialize: (state) => ({
         user: state.user,
         accessToken: state.accessToken,
-        refreshToken: state.refreshToken,
         isAuthenticated: state.isAuthenticated,
       }),
     }
